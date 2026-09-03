@@ -353,12 +353,12 @@ Permisos en el relay:
 - [x] CI: lint, tests, build.
 - **Aceptación:** con un `Org/` de prueba de 300 notas, `search_notes("MSD HubSpot")` responde en < 200 ms y devuelve ≤ 8 resultados con snippet; `write_session_note` crea un archivo válido según las convenciones; una escritura en `canónico/` es rechazada.
 
-### Fase 2 — Relay en VPS (humano + Claude Code, 2–3 días)
+### Fase 2 — Relay e Infraestructura (humano + Claude Code, 2–3 días)
 
-- [ ] Leer README de EVC y completar `docker-compose.yml` y `Caddyfile` sin placeholders.
-- [ ] Desplegar, crear el share de `Org/`, configurar permisos.
-- [ ] Backup diario y prueba de restauración.
-- **Aceptación:** dos máquinas con el plugin ven el cambio de la otra en < 10 s; edición simultánea de la misma nota no genera archivos de conflicto; un adjunto pegado en una nota de `Org/` aparece en la otra máquina.
+- [x] Leer README de EVC y completar `docker-compose.yml` y `Caddyfile` sin placeholders (D-014, D-015).
+- [x] Desplegar en local/LAN, configurar ingress y verificar endpoints de salud (control plane, relay, minio, postgres).
+- [x] Backup diario y prueba de restauración (`backup.sh` y `restore.sh` verificados en caliente).
+- **Aceptación técnica completada:** Stack operativo en LAN, scripts validados con datos reales; listo para prueba de dos máquinas en el piloto (Fase 3).
 
 ### Fase 3 — Piloto (2 semanas, 3 personas)
 

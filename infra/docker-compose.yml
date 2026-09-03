@@ -1,0 +1,136 @@
+# EVC Team Relay para Latinovation — stack base (idéntico en local y producción).
+# Combínalo con docker-compose.local.yml (LAN, sin TLS) o docker-compose.prod.yml (VPS, Caddy con TLS):
+# el script setup.sh escribe COMPOSE_FILE en .env para que baste `docker compose up -d`.
+# Origen de valores: github.com/entire-vc/evc-team-relay/infra (v1.12.0) — ver infra/README.md.
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - ./data/minio:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+      mc mb --ignore-existing local/relay &&
+      mc anonymous set none local/relay
+      "
+    restart: "no"
+
+  control-plane-migrate:
+    image: ghcr.io/entire-vc/evc-team-relay/control-plane:${CP_VERSION:-latest}
+    env_file: [./.env]
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["python", "-m", "alembic", "upgrade", "head"]
+    restart: "no"
+
+  control-plane:
+    image: ghcr.io/entire-vc/evc-team-relay/control-plane:${CP_VERSION:-latest}
+    env_file: [./.env]
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      RELAY_PUBLIC_URL: ${RELAY_PUBLIC_URL}
+      RELAY_AUDIENCE: ${RELAY_AUDIENCE}
+      RELAY_PRIVATE_KEY: ${RELAY_PRIVATE_KEY}
+      RELAY_KEY_ID: ${RELAY_KEY_ID:-relay_cp_dev}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-*}
+      SERVER_NAME: ${SERVER_NAME:-Latinovation Org}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: relay
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+    volumes:
+      - ./data/uploads:/app/app/static/uploads
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      control-plane-migrate:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import sys,urllib.error,urllib.request\ntry:\n    sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health/ready').status == 200 else 1)\nexcept urllib.error.HTTPError:\n    sys.exit(1)",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  relay-server:
+    image: ghcr.io/entire-vc/evc-relay-server:${RELAY_VERSION:-0.9.12}
+    depends_on:
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    volumes:
+      - ./relay/relay.toml:/app/relay.toml:ro
+      - ./data/relay:/app/data
+    restart: unless-stopped
+    expose:
+      - "8080"
+      - "9090"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  caddy:
+    image: caddy:2
+    env_file: [./.env]
+    volumes:
+      - ./data/caddy:/data
+      - ./data/caddy_config:/config
+    depends_on:
+      - control-plane
+      - relay-server
+    restart: unless-stopped

@@ -1,0 +1,67 @@
+# Ingress de producción (VPS con IP pública): Caddy emite y renueva certificados.
+# Adaptado de github.com/entire-vc/evc-team-relay/infra/Caddyfile (v1.12.0), sin web-publish ni sitio estático.
+{
+  email {$ACME_EMAIL}
+}
+
+(security_headers) {
+  header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  header X-Content-Type-Options "nosniff"
+  header X-Frame-Options "DENY"
+}
+
+(access_log_redacted) {
+  log {
+    format filter {
+      wrap json
+      fields {
+        request>uri query {
+          replace token REDACTED
+          replace agent_key REDACTED
+        }
+      }
+    }
+  }
+}
+
+# Control plane: API, panel admin (/admin-ui/) y emisión de tokens.
+cp.{$DOMAIN_BASE} {
+  import security_headers
+  import access_log_redacted
+
+  # /metrics nunca en el borde público.
+  handle /metrics* {
+    respond 404
+  }
+  request_body {
+    max_size 10MB
+  }
+  reverse_proxy control-plane:8000 {
+    header_down Connection close
+    lb_try_duration 30s
+    lb_try_interval 250ms
+  }
+}
+
+# Relay (WebSocket CRDT). RELAY_DOMAIN suele ser igual a DOMAIN_BASE (no hay subdominio relay.).
+{$RELAY_DOMAIN} {
+  import security_headers
+  import access_log_redacted
+
+  # Para endpoints HTTP normales, ?token= pasa a cabecera Authorization.
+  # NUNCA en las rutas WebSocket: relay-server solo lee el token del query string ahí.
+  @token_in_query {
+    query token=*
+    not path /doc/ws/* /d/*/ws/*
+  }
+  handle @token_in_query {
+    route {
+      request_header Authorization "Bearer {query.token}"
+      uri query -token
+      reverse_proxy relay-server:8080
+    }
+  }
+  handle {
+    reverse_proxy relay-server:8080
+  }
+}

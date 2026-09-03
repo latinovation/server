@@ -1,0 +1,8 @@
+# Modo LAN / pruebas: sin dominio ni TLS. Control plane en :8000 y relay en :8080 de esta máquina.
+services:
+  caddy:
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+    volumes:
+      - ./Caddyfile.local:/etc/caddy/Caddyfile:ro

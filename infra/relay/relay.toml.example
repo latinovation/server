@@ -1,0 +1,27 @@
+# Configuración del relay-server (ghcr.io/entire-vc/evc-relay-server). La genera setup.sh.
+[server]
+# DEBE ser idéntico a RELAY_AUDIENCE de .env: el control plane lo pone como `aud` en cada token
+# y el relay lo compara byte a byte. Si difieren, todo WebSocket falla sin mensaje útil.
+url = "__RELAY_AUDIENCE__"
+host = "0.0.0.0"
+port = 8080
+
+[metrics]
+port = 9090
+
+[logging]
+level = "info"
+format = "pretty"
+
+# Clave pública Ed25519 derivada de RELAY_PRIVATE_KEY (.env). key_id = RELAY_KEY_ID.
+[[auth]]
+key_id = "__RELAY_KEY_ID__"
+public_key = "__RELAY_PUBLIC_KEY__"
+
+[store]
+type = "minio"
+bucket = "relay"
+endpoint = "http://minio:9000"
+access_key = "__MINIO_ROOT_USER__"
+secret_key = "__MINIO_ROOT_PASSWORD__"
+prefix = ""

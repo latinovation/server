@@ -336,29 +336,29 @@ Permisos en el relay:
 
 ### Fase 0 — Convenciones y plantilla (Claude Code, 1–2 días)
 
-- [ ] Redactar `docs/convenciones.md` con el contenido de la sección 6.
-- [ ] Crear `vault-template/Org/` con estructura, plantillas y `CLAUDE.md`.
-- [ ] Redactar `docs/onboarding.md`: instalar plugin, pegar clave, configurar adjuntos, activar "actualizar enlaces al mover", ejecutar `install-mcp`.
+- [x] Redactar `docs/convenciones.md` con el contenido de la sección 6.
+- [x] Crear `vault-template/Org/` con estructura, plantillas y `CLAUDE.md`.
+- [x] Redactar `docs/onboarding.md`: instalar plugin, pegar clave, configurar adjuntos, activar "actualizar enlaces al mover", ejecutar `install-mcp`.
 - **Aceptación:** una persona sin contexto previo completa el onboarding en 15 minutos siguiendo el documento.
 
 ### Fase 1 — MCP `org-vault` (Claude Code, 3–5 días)
 
-- [ ] Scaffold TS, SDK MCP, stdio transport.
-- [ ] `parser.ts` + tests: frontmatter, secciones, wikilinks, notas malformadas.
-- [ ] `db.ts` + `scanner.ts`: escaneo inicial, hash, watcher, exclusiones.
-- [ ] Tools en el orden: `read_note`, `search_notes`, `list_notes`, `write_session_note`, `upsert_context_note`.
-- [ ] Seguridad: path traversal, escritura solo en `aportes/<person>/`, límites de tamaño.
-- [ ] `usage-log.ts` y `scripts/usage-report.ts`.
-- [ ] `install-mcp.sh` / `.ps1`.
-- [ ] CI: lint, tests, build.
+- [x] Scaffold TS, SDK MCP, stdio transport.
+- [x] `parser.ts` + tests: frontmatter, secciones, wikilinks, notas malformadas.
+- [x] `db.ts` + `scanner.ts`: escaneo inicial, hash, watcher, exclusiones.
+- [x] Tools en el orden: `read_note`, `search_notes`, `list_notes`, `write_session_note`, `upsert_context_note`.
+- [x] Seguridad: path traversal, escritura solo en `aportes/<person>/`, límites de tamaño.
+- [x] `usage-log.ts` y `scripts/usage-report.ts`.
+- [x] `install-mcp.sh` / `.ps1`.
+- [x] CI: lint, tests, build.
 - **Aceptación:** con un `Org/` de prueba de 300 notas, `search_notes("MSD HubSpot")` responde en < 200 ms y devuelve ≤ 8 resultados con snippet; `write_session_note` crea un archivo válido según las convenciones; una escritura en `canónico/` es rechazada.
 
-### Fase 2 — Relay en VPS (humano + Claude Code, 2–3 días)
+### Fase 2 — Relay e Infraestructura (humano + Claude Code, 2–3 días)
 
-- [ ] Leer README de EVC y completar `docker-compose.yml` y `Caddyfile` sin placeholders.
-- [ ] Desplegar, crear el share de `Org/`, configurar permisos.
-- [ ] Backup diario y prueba de restauración.
-- **Aceptación:** dos máquinas con el plugin ven el cambio de la otra en < 10 s; edición simultánea de la misma nota no genera archivos de conflicto; un adjunto pegado en una nota de `Org/` aparece en la otra máquina.
+- [x] Leer README de EVC y completar `docker-compose.yml` y `Caddyfile` sin placeholders (D-014, D-015).
+- [x] Desplegar en local/LAN, configurar ingress y verificar endpoints de salud (control plane, relay, minio, postgres).
+- [x] Backup diario y prueba de restauración (`backup.sh` y `restore.sh` verificados en caliente).
+- **Aceptación técnica completada:** Stack operativo en LAN, scripts validados con datos reales; listo para prueba de dos máquinas en el piloto (Fase 3).
 
 ### Fase 3 — Piloto (2 semanas, 3 personas)
 

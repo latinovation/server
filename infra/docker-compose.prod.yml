@@ -1,0 +1,13 @@
+# Modo VPS: Caddy con TLS automático (Let's Encrypt) en 80/443.
+# DNS: DOMAIN_BASE y cp.DOMAIN_BASE apuntando al VPS.
+services:
+  caddy:
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN_BASE: ${DOMAIN_BASE}
+      RELAY_DOMAIN: ${RELAY_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro

@@ -2,6 +2,27 @@
 
 Formato: fecha · decisión · razón · impacto en el plan. Las decisiones más recientes van arriba.
 
+## 2026-09-03 · Fase 2 (relay)
+
+### D-016 · Un solo share `Org/` con todos como editores durante el piloto
+- **Verificado:** EVC solo da permisos por share (una carpeta) con roles `viewer`/`editor`; no hay permisos por subcarpeta (punto 3 de la sección 10).
+- **Razón:** con menos de 20 personas, un share por carpeta (`canónico/`, `aportes/<persona>/`, …) multiplica la gestión. El MCP ya rechaza escrituras en `canónico/`; en Obsidian se confía en la convención durante el piloto.
+- **Impacto:** si el piloto muestra ediciones indebidas en `canónico/`, se pasa a un share por carpeta (opción documentada en `infra/README.md`).
+
+### D-015 · Modo LAN sin dominio ni TLS para la prueba local, mismo stack que producción
+- **Verificado:** el plugin acepta `http://` y `ws://` (`RelayOnPremConfig.ts`) y el control plane no exige TLS salvo cookies del publicador web, que no usamos.
+- **Razón:** el plan pide probar primero en esta máquina y luego con dispositivos de la red. `docker-compose.local.yml` pone Caddy en HTTP (`:8000` control plane, `:8080` relay) sin dominio ni certificados; `docker-compose.prod.yml` añade TLS en el VPS sin cambiar nada más.
+- **Impacto:** `infra/setup.sh local|prod` genera `.env` y `relay/relay.toml` con secretos y claves nuevas.
+
+### D-014 · Stack mínimo: Postgres, MinIO, control plane, relay-server y Caddy; sin web-publish, Grafana ni workers
+- **Verificado:** el compose oficial (`entire-vc/evc-team-relay` v1.12.0) incluye además web-publish, Prometheus, Grafana, workers de email/webhooks y un servicio de backup de Postgres.
+- **Razón:** nada de eso es necesario para sincronizar `Org/`. Menos servicios, menos RAM en el VPS y menos superficie. El backup se hace con `infra/backup.sh` (pg_dump + tar de MinIO) desde cron, como pedía el plan.
+- **Impacto:** el plan asumía "relay + Caddy"; la sección 8 queda corregida por esta decisión.
+
+### D-013 · El repositorio del plugin es `entire-vc/evc-team-relay-plugin` y se instala a mano
+- **Verificado:** `evc-team-relay-obsidian-plugin` (nombre del plan) no existe. El plugin no está en el catálogo de Obsidian; se copian `main.js`, `manifest.json` y `styles.css` del release en `.obsidian/plugins/team-relay/` (id del manifest: `team-relay`).
+- **Impacto:** `docs/onboarding.md` paso 2 cambia de "Explorar plugins" a instalación manual.
+
 ## 2026-09-03 · Fase 0 y fase 1
 
 ### D-012 · `Org/CLAUDE.md` no se indexa

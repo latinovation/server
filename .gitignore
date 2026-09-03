@@ -8,3 +8,9 @@ dist/
 .DS_Store
 coverage/
 .obsidian/
+
+# infra: secretos y datos del relay
+infra/.env
+infra/relay/relay.toml
+infra/data/
+infra/backups/

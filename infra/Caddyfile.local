@@ -1,0 +1,31 @@
+# Ingress para pruebas en LAN: HTTP plano. No usar en producción.
+{
+  auto_https off
+}
+
+# Control plane (API + /admin-ui/)
+:8000 {
+  reverse_proxy control-plane:8000 {
+    header_down Connection close
+  }
+}
+
+# Relay (WebSocket CRDT). Misma lógica que el Caddyfile oficial: para endpoints HTTP normales
+# convierte ?token= en cabecera Authorization; NUNCA en las rutas de upgrade WebSocket,
+# porque relay-server solo lee el token del query string ahí (incidente #137 del proyecto EVC).
+:8080 {
+  @token_in_query {
+    query token=*
+    not path /doc/ws/* /d/*/ws/*
+  }
+  handle @token_in_query {
+    route {
+      request_header Authorization "Bearer {query.token}"
+      uri query -token
+      reverse_proxy relay-server:8080
+    }
+  }
+  handle {
+    reverse_proxy relay-server:8080
+  }
+}

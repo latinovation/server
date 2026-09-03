@@ -4,8 +4,6 @@ Al terminar tendrás la carpeta `Org/` en tu baúl, sincronizada con el equipo, 
 
 Necesitas: Obsidian de escritorio instalado con tu baúl abierto, Node 20 o superior, Claude Code instalado, y la clave del share de `Org/` que te da el curador.
 
-Los pasos marcados **[VERIFICAR]** dependen del relay (fase 2) y se completarán cuando esté desplegado.
-
 ## 1. Ajustes de Obsidian (3 min)
 
 En Ajustes → Archivos y enlaces:
@@ -16,12 +14,15 @@ En Ajustes → Archivos y enlaces:
 
 En Ajustes → Plugins principales → Plantillas: carpeta de plantillas `Org/_plantillas` (después del paso 3).
 
-## 2. Plugin de sincronización (4 min) **[VERIFICAR en fase 2]**
+## 2. Plugin de sincronización (4 min)
 
-1. Ajustes → Plugins de la comunidad → Explorar → instalar **EVC Team Relay** y activarlo.
-2. En la configuración del plugin, pegar la clave del share que te dio el curador y aceptar.
-3. Elegir la carpeta destino: `Org` en la raíz de tu baúl. Si no existe, el plugin la crea al sincronizar.
-4. Esperar a que termine la primera sincronización. Deberías ver `Org/CLAUDE.md` y `Org/canónico/`.
+El plugin **Team Relay** no está en el catálogo de Obsidian todavía; se instala a mano.
+
+1. Descarga `main.js`, `manifest.json` y `styles.css` del [último release](https://github.com/entire-vc/evc-team-relay-plugin/releases/latest).
+2. Cópialos en `<tu baúl>/.obsidian/plugins/team-relay/` (crea la carpeta).
+3. Reinicia Obsidian → Ajustes → Plugins de la comunidad → activar **Team Relay**.
+4. Ajustes del plugin → **Add server** → URL del control plane que te da el curador (piloto en LAN: `http://192.168.1.87:8000`; producción: `https://cp.org.latinovation.com`). Inicia sesión con el usuario y contraseña que te creó el curador.
+5. Espera la invitación al share `Org` y acéptala desde el plugin. La carpeta `Org/` aparece en la raíz de tu baúl con `CLAUDE.md` y `canónico/`.
 
 Si el relay todavía no está desplegado, salta al paso 3: el instalador copia la plantilla de `Org/` y podrás usar el MCP en local. Cuando el relay esté listo, vuelves aquí.
 
@@ -77,5 +78,5 @@ En menos de un segundo el MCP la indexa. Pide a Claude Code que la busque para c
 |---|---|---|
 | `org-vault` aparece como "failed" en `/mcp` | La ruta del baúl en `config.json` no existe o `person` está vacío | Ejecuta `node mcp-org-vault/dist/index.js --check` para ver el mensaje exacto |
 | Claude no encuentra una nota recién creada | La nota está en `archivo/`, `_plantillas/` o `adjuntos/` (carpetas excluidas) o el frontmatter YAML tiene un error | Mueve la nota o corrige el frontmatter; `list_notes` muestra los avisos |
-| Claude escribe pero la nota no aparece en otras máquinas | El relay no está sincronizando | Revisa el estado del plugin en Obsidian **[VERIFICAR fase 2]** |
+| Claude escribe pero la nota no aparece en otras máquinas | El relay no está sincronizando | Revisa el estado del plugin Team Relay en Obsidian (icono de la barra lateral) y que el share `Org` esté aceptado |
 | "Ruta fuera de aportes/<persona>" | Claude intentó escribir en `canónico/` o en otra carpeta | Comportamiento esperado; pídele que escriba en tu carpeta |
