@@ -1,0 +1,24 @@
+{
+  "name": "latinovation-org-vault",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Org vault: carpeta Org/ compartida entre baúles Obsidian + MCP local para Claude Code",
+  "type": "module",
+  "workspaces": [
+    "mcp-org-vault"
+  ],
+  "scripts": {
+    "build": "npm run build -w mcp-org-vault",
+    "test": "npm test -w mcp-org-vault",
+    "lint": "npm run lint -w mcp-org-vault",
+    "typecheck": "npm run typecheck -w mcp-org-vault",
+    "report": "tsx scripts/usage-report.ts",
+    "smoke": "node scripts/smoke-stdio.mjs"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
