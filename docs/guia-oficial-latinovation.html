@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Org Vault: Claude Code + Obsidian para Latinovation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-warm: #F9F8F5;
+      --bg-card: #FFFFFF;
+      --navy-primary: #1C1A48;
+      --navy-dark: #12102E;
+      --navy-light: #2A275E;
+      --orange-accent: #D95B23;
+      --orange-hover: #BF4C19;
+      --orange-light: #FFF4EE;
+      --text-main: #2D3139;
+      --text-muted: #626875;
+      --border-subtle: #EBE8E1;
+      --border-card: #E4E0D5;
+      --code-bg: #1A1836;
+      --code-text: #E0E7FF;
+      --green-accent: #15803D;
+      --green-bg: #F0FDF4;
+      --green-border: #86EFAC;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-warm);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Contenedor tipo documento de revista / guía */
+    .doc-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: var(--bg-card);
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    /* Portada Editorial */
+    .cover-page {
+      padding: 90px 80px 70px 80px;
+      min-height: 800px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--border-subtle);
+      background: #FAF9F6;
+    }
+
+    .tag-header {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--orange-accent);
+      text-transform: uppercase;
+      display: inline-block;
+      border-bottom: 3px solid var(--orange-accent);
+      padding-bottom: 6px;
+      width: fit-content;
+    }
+
+    .cover-title-group {
+      margin-top: 60px;
+      margin-bottom: 40px;
+    }
+
+    .cover-title {
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 58px;
+      line-height: 1.08;
+      color: var(--navy-primary);
+      font-weight: 700;
+      letter-spacing: -1.5px;
+    }
+
+    .cover-title .highlight-italic {
+      color: var(--orange-accent);
+      font-style: italic;
+      font-weight: 400;
+      display: block;
+      margin: 8px 0;
+    }
+
+    .cover-rule {
+      height: 3px;
+      background: var(--orange-accent);
+      width: 100%;
+      margin: 35px 0 25px 0;
+    }
+
+    .cover-subtitle {
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 20px;
+      font-style: italic;
+      color: var(--text-muted);
+      line-height: 1.45;
+      max-width: 640px;
+    }
+
+    .cover-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 80px;
+      padding-top: 30px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .cover-meta h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy-primary);
+      margin-bottom: 6px;
+    }
+
+    .cover-meta p {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      line-height: 1.7;
+    }
+
+    .cover-logo-mark {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: var(--orange-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .cover-logo-mark::after {
+      content: '';
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 4px solid #FAF9F6;
+    }
+
+    /* Contenido General */
+    .page-body {
+      padding: 70px 80px;
+    }
+
+    /* Encabezados de Sección */
+    .section-header {
+      margin-top: 60px;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .section-header:first-of-type {
+      margin-top: 10px;
+    }
+
+    .section-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 12px;
+    }
+
+    .section-number {
+      width: 34px;
+      height: 34px;
+      background: var(--navy-primary);
+      color: #FFF;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .section-number.orange {
+      background: var(--orange-accent);
+    }
+
+    .section-category {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--orange-accent);
+    }
+
+    .section-title {
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 34px;
+      color: var(--navy-primary);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.5px;
+    }
+
+    .section-subtitle-italic {
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 18px;
+      font-style: italic;
+      color: var(--text-muted);
+      margin-top: 6px;
+      margin-bottom: 25px;
+    }
+
+    h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--navy-primary);
+      margin: 30px 0 14px 0;
+    }
+
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--navy-primary);
+      margin: 20px 0 10px 0;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: var(--text-main);
+    }
+
+    /* Tabla de Contenidos */
+    .contents-box {
+      border-left: 4px solid var(--navy-primary);
+      padding-left: 20px;
+      margin-bottom: 45px;
+    }
+
+    .contents-title {
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--navy-primary);
+      margin-bottom: 20px;
+    }
+
+    .contents-list {
+      list-style: none;
+    }
+
+    .contents-item {
+      display: flex;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 14.5px;
+      font-weight: 500;
+    }
+
+    .contents-num {
+      color: var(--orange-accent);
+      font-weight: 700;
+      width: 40px;
+      flex-shrink: 0;
+    }
+
+    .contents-text {
+      color: var(--navy-primary);
+    }
+
+    /* Cajas de Aviso / Callouts */
+    .callout {
+      margin: 25px 0;
+      padding: 18px 22px;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .callout-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .callout-info {
+      background: #F4F6FB;
+      border-left: 4px solid var(--navy-primary);
+    }
+    .callout-info .callout-title { color: var(--navy-primary); }
+
+    .callout-tip {
+      background: var(--green-bg);
+      border-left: 4px solid var(--green-accent);
+    }
+    .callout-tip .callout-title { color: var(--green-accent); }
+
+    .callout-warning {
+      background: var(--orange-light);
+      border-left: 4px solid var(--orange-accent);
+    }
+    .callout-warning .callout-title { color: var(--orange-accent); }
+
+    /* Tablas estilo Guía Editorial */
+    .table-editorial {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 25px 0;
+      font-size: 13.5px;
+    }
+
+    .table-editorial th {
+      background: var(--navy-primary);
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-align: left;
+      padding: 12px 16px;
+    }
+
+    .table-editorial td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: top;
+    }
+
+    .table-editorial tr:nth-child(even) td {
+      background: #FAFAF8;
+    }
+
+    /* Bloques de Código y Terminal */
+    .terminal-block {
+      background: var(--code-bg);
+      border-radius: 6px;
+      padding: 20px 24px;
+      margin: 22px 0;
+      overflow-x: auto;
+    }
+
+    .terminal-block pre {
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      color: var(--code-text);
+      line-height: 1.55;
+    }
+
+    .terminal-block .comment {
+      color: #818CF8;
+    }
+
+    .terminal-block .highlight {
+      color: #FCD34D;
+    }
+
+    .terminal-block .success {
+      color: #34D399;
+    }
+
+    code {
+      font-family: 'Fira Code', monospace;
+      font-size: 12.5px;
+      background: #F3F1EC;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: var(--navy-primary);
+    }
+
+    /* Tarjetas de Skills / Tools */
+    .card-tool {
+      border: 1px solid var(--border-card);
+      border-left: 4px solid var(--orange-accent);
+      border-radius: 4px;
+      padding: 18px 22px;
+      margin-bottom: 18px;
+      background: #FFF;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+
+    .card-tool.navy {
+      border-left-color: var(--navy-primary);
+    }
+
+    .card-tool h4 {
+      margin-top: 0;
+      font-size: 16px;
+      color: var(--navy-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-tool .tool-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: var(--orange-light);
+      color: var(--orange-accent);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    /* Pasos Numerados (Step 1, Step 2...) */
+    .step-row {
+      display: flex;
+      gap: 16px;
+      margin: 16px 0;
+      align-items: flex-start;
+    }
+
+    .step-badge {
+      width: 26px;
+      height: 26px;
+      background: #F3F1EC;
+      color: var(--navy-primary);
+      font-weight: 700;
+      font-size: 12px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-text {
+      flex: 1;
+    }
+
+    /* Diagrama ASCII / Caja de Arquitectura */
+    .diagram-box {
+      background: #FAF9F6;
+      border: 1px solid var(--border-card);
+      border-radius: 6px;
+      padding: 24px;
+      margin: 25px 0;
+      text-align: center;
+    }
+
+    /* Pie de página con numeración */
+    .page-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 25px 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      background: #FAF9F6;
+    }
+
+    /* Estilos para impresión y Guardar como PDF */
+    @media print {
+      body {
+        background: #FFF;
+      }
+      .doc-container {
+        max-width: 100%;
+        margin: 0;
+        box-shadow: none;
+        border-radius: 0;
+      }
+      .cover-page {
+        page-break-after: always;
+        min-height: 100vh;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+      .terminal-block {
+        background: #181735 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .table-editorial th {
+        background: #1C1A48 !important;
+        color: #FFF !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .section-number {
+        background: #1C1A48 !important;
+        color: #FFF !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .section-number.orange {
+        background: #D95B23 !important;
+        color: #FFF !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="doc-container">
+
+  <!-- ==================== PORTADA ==================== -->
+  <section class="cover-page">
+    <div>
+      <div class="tag-header">GUÍA OFICIAL DEL SISTEMA</div>
+      <div class="cover-title-group">
+        <h1 class="cover-title">
+          Claude Code
+          <span class="highlight-italic">+ Obsidian</span>
+          para Latinovation
+        </h1>
+        <div class="cover-rule"></div>
+        <p class="cover-subtitle">
+          Sistema de contexto compartido: baúl local sincronizado vía Relay CRDT, servidor MCP org-vault y despliegue de infraestructura en Coolify.
+        </p>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <div class="cover-meta">
+        <h4>Latinovation</h4>
+        <p>DOCUMENTO DE EQUIPO · EDICIÓN VERIFICADA</p>
+        <p>REVISADO CONTRA INSTALACIÓN EN PRODUCCIÓN</p>
+        <p>SEPTIEMBRE 2026</p>
+      </div>
+      <div class="cover-logo-mark"></div>
+    </div>
+  </section>
+
+  <!-- ==================== CUERPO DEL DOCUMENTO ==================== -->
+  <div class="page-body">
+
+    <!-- ÍNDICE -->
+    <div class="contents-box">
+      <div class="contents-title">Contenido de la Guía</div>
+      <ul class="contents-list">
+        <li class="contents-item"><span class="contents-num">01</span><span class="contents-text">Objetivo y Filosofía: El Cerebro Compartido</span></li>
+        <li class="contents-item"><span class="contents-num">02</span><span class="contents-text">Arquitectura Técnica: Las Tres Capas Desacopladas</span></li>
+        <li class="contents-item"><span class="contents-num">03</span><span class="contents-text">Convenciones del Baúl: La Carpeta Org/ y Notas de Contexto</span></li>
+        <li class="contents-item"><span class="contents-num">04</span><span class="contents-text">Onboarding del Equipo en 15 Minutos (Paso a Paso)</span></li>
+        <li class="contents-item"><span class="contents-num">05</span><span class="contents-text">El Servidor MCP org-vault: Herramientas para Claude Code</span></li>
+        <li class="contents-item"><span class="contents-num">06</span><span class="contents-text">Cierre de Sesión, Reutilización y Curaduría Semanal</span></li>
+        <li class="contents-item"><span class="contents-num">07</span><span class="contents-text">Despliegue en VPS de Producción con Coolify</span></li>
+        <li class="contents-item"><span class="contents-num">08</span><span class="contents-text">Operación, Backups y Solución de Problemas Frecuentes</span></li>
+      </ul>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-title">CÓMO LEER ESTA GUÍA</span>
+      Para el <strong>equipo creativo y cuentas</strong>, las secciones prioritarias son la <strong>03</strong> (convenciones) y la <strong>04</strong> (onboarding de Obsidian). Para <strong>desarrolladores y DevOps</strong>, las secciones <strong>05</strong> (MCP) y <strong>07</strong> (Coolify) detallan la operación técnica completa.
+    </div>
+
+    <!-- SECCIÓN 01 -->
+    <div class="section-header">
+      <div class="section-badge-row">
+        <div class="section-number">1</div>
+        <span class="section-category">FUNDAMENTOS</span>
+      </div>
+      <h2 class="section-title">Objetivo y Filosofía del Sistema</h2>
+      <div class="section-subtitle-italic">Por qué este sistema ahorra entre 95% y 98% de tokens en cada sesión.</div>
+    </div>
+
+    <p>
+      En una agencia digital como Latinovation (< 20 personas), el trabajo con agentes de Inteligencia Artificial (Claude Code, ChatGPT, Grok) enfrenta un cuello de botella constante: <strong>la amnesia de contexto</strong>. Cada vez que una persona abre una sesión, la IA no sabe qué clientes usan HubSpot, qué aprendizajes se obtuvieron la semana pasada o qué decisiones de diseño se aprobaron.
+    </p>
+
+    <p>
+      Si cada miembro del equipo debe reconstruir el contexto pegando documentos masivos, se saturan las ventanas de contexto, se disparan los costos y se pierde tiempo valioso.
+    </p>
+
+    <div class="callout callout-tip">
+      <span class="callout-title">EL PRINCIPIO CLAVE</span>
+      <strong>El baúl es una carpeta, no una base de datos propietaria.</strong> Obsidian es el visor humano cómodo; Claude Code lee y escribe directamente en el disco; el Relay CRDT distribuye los cambios entre máquinas sin conflictos.
+    </div>
+
+    <!-- SECCIÓN 02 -->
+    <div class="section-header">
+      <div class="section-badge-row">
+        <div class="section-number">2</div>
+        <span class="section-category">DISEÑO TÉCNICO</span>
+      </div>
+      <h2 class="section-title">Arquitectura en Tres Capas</h2>
+      <div class="section-subtitle-italic">Desacoplamiento total entre interfaz, sincronización y modelo de lenguaje.</div>
+    </div>
+
+    <table class="table-editorial">
+      <thead>
+        <tr>
+          <th>Capa</th>
+          <th>Tecnología</th>
+          <th>Función en Latinovation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1. Baúl Local</strong></td>
+          <td>Obsidian + Carpeta <code>Org/</code></td>
+          <td>Espacio donde cada persona toma notas. Las notas privadas nunca salen; solo <code>Org/</code> se comparte.</td>
+        </tr>
+        <tr>
+          <td><strong>2. Relay CRDT</strong></td>
+          <td>EVC Team Relay (Docker)</td>
+          <td>Sincroniza en milisegundos la carpeta <code>Org/</code> entre máquinas en red local o VPS mediante Yjs/CRDT.</td>
+        </tr>
+        <tr>
+          <td><strong>3. MCP org-vault</strong></td>
+          <td>Node.js + SQLite FTS5 (stdio)</td>
+          <td>Índice local ultrarrápido (<15ms) que permite a Claude Code buscar y leer fragmentos precisos sin volcar carpetas.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="terminal-block">
+<pre><span class="comment"># Esquema de interacción física</span>
+[ Baúl Personal (Mac/PC) ]
+  ├── notas privadas            <span class="comment">← nunca salen de la máquina</span>
+  └── Org/                      <span class="comment">← sincronizada en tiempo real</span>
+        ├── canónico/           <span class="comment">← conocimiento oficial (solo curador)</span>
+        ├── aportes/&lt;persona&gt;/  <span class="comment">← notas de contexto y cierres de cada uno</span>
+        └── CLAUDE.md           <span class="comment">← contexto del equipo para agentes</span>
+
+Org/ (Brayan)  <span class="highlight">⇄  Relay EVC (VPS Coolify)  ⇄</span>  Org/ (Equipo)
+
+Claude Code  <span class="success">──(stdio local)──►</span>  MCP org-vault  <span class="success">──(FTS5)──►</span>  Org/ en disco</pre>
+    </div>
+
+    <!-- SECCIÓN 03 -->
+    <div class="section-header">
+      <div class="section-badge-row">
+        <div class="section-number">3</div>
+        <span class="section-category">REGLAS DEL EQUIPO</span>
+      </div>
+      <h2 class="section-title">Convenciones de la Carpeta Org/</h2>
+      <div class="section-subtitle-italic">Estructura que permite a los agentes encontrar respuestas leyendo lo mínimo.</div>
+    </div>
+
+    <p>
+      El sistema impone límites estrictos validados por código en el servidor MCP para evitar que se convierta en un vertedero de texto desorganizado:
+    </p>
+
+    <div class="card-tool">
+      <h4><span class="tool-badge">REGLA 1</span> Una idea por nota (Máximo 500 palabras)</h4>
+      <p>Cada nota de contexto aborda un solo concepto concreto (un cliente, un proceso, una decisión). Si necesitas más de 500 palabras, se divide en dos notas enlazadas.</p>
+    </div>
+
+    <div class="card-tool">
+      <h4><span class="tool-badge">REGLA 2</span> Canónico vs Aportes</h4>
+      <p><code>Org/canónico/</code> contiene la verdad oficial de la agencia y <strong>solo la edita el Curador</strong>. Cada persona (y su agente) escribe exclusivamente dentro de su propia subcarpeta: <code>Org/aportes/&lt;persona&gt;/</code>.</p>
+    </div>
+
+    <div class="card-tool">
+      <h4><span class="tool-badge">REGLA 3</span> Frontmatter YAML Obligatorio</h4>
+      <p>Toda nota de contexto lleva metadatos obligatorios para que el buscador FTS5 los indexe con precisión:</p>
+      <div class="terminal-block">
+<pre>---
+tipo: cliente | proceso | decision | cierre | referencia
+titulo: "Nombre corto y descriptivo"
+cliente: "slug-cliente"        <span class="comment"># opcional; minúsculas sin acentos</span>
+tags: [pauta, looker, q4]      <span class="comment"># máximo 5 tags</span>
+autor: brayan                  <span class="comment"># tu slug de persona</span>
+actualizado: 2026-09-04
+fuente: humano | claude-code
+estado: borrador | validado    <span class="comment"># validado solo en canónico/</span>
+---</pre>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 04 -->
+    <div class="section-header">
+      <div class="section-badge-row">
+        <div class="section-number">4</div>
+        <span class="section-category">GUÍA DE INSTALACIÓN</span>
+      </div>
+      <h2 class="section-title">Onboarding del Equipo en 15 Minutos</h2>
+      <div class="section-subtitle-italic">Configuración inicial para cada nueva máquina del equipo.</div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-badge">1</div>
+      <div class="step-text">
+        <strong>Ajustes de Obsidian (2 min):</strong>
+        Ve a Ajustes → <em>Archivos y enlaces</em>. Activa <strong>Actualizar enlaces automáticamente</strong>. En <em>Ubicación de nuevos adjuntos</em>, selecciona <em>En subcarpeta de la carpeta actual</em> con el nombre <code>adjuntos</code>.
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-badge">2</div>
+      <div class="step-text">
+        <strong>Instalar Plugin Team Relay (4 min):</strong>
+        Descarga <code>main.js</code>, <code>manifest.json</code> y <code>styles.css</code> del release e instálalos en <code>&lt;tu-baúl&gt;/.obsidian/plugins/team-relay/</code>. Activa el plugin en <em>Plugins de la comunidad</em>.
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-badge">3</div>
+      <div class="step-text">
+        <strong>Conectar al Relay (2 min):</strong>
+        En Ajustes → <em>Team Relay</em> → <strong>Add Server</strong>:
+        <br>• <strong>Control Plane URL:</strong> <code>https://cp.org.tudominio.com</code> (o IP local en LAN)
+        <br>• Inicia sesión con las credenciales entregadas por el curador y acepta la invitación al share <code>Org</code>.
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-badge">4</div>
+      <div class="step-text">
+        <strong>Registrar MCP en Claude Code (4 min):</strong>
+        Clona este repositorio y ejecuta el script automatizado:
+        <div class="terminal-block">
+<pre><span class="comment"># macOS / Linux</span>
+./scripts/install-mcp.sh
+
+<span class="comment"># Windows (PowerShell)</span>
+.\scripts\install-mcp.ps1</pre>
+        </div>
+        El instalador detecta tu baúl, pide tu slug de persona, compila el binario y lo registra en Claude Code.
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-badge">5</div>
+      <div class="step-text">
+        <strong>Comprobación (1 min):</strong>
+        Abre una terminal, escribe <code>claude</code> y ejecuta <code>/mcp</code>. Debe aparecer <code>org-vault</code> en estado conectado: <code>✔ Connected</code>.
+      </div>
+    </div>
+
+    <!-- SECCIÓN 05 -->
+    <div class="section-header">
+      <div class="section-badge-row">
+        <div class="section-number">5</div>
+        <span class="section-category">HERRAMIENTAS IA</span>
+      </div>
+      <h2 class="section-title">El Servidor MCP org-vault</h2>
+      <div class="section-subtitle-italic">Las 5 herramientas que permiten a Claude Code interactuar con el baúl.</div>
+    </div>
+
+    <div class="card-tool navy">
+      <h4><code>search_notes</code> <span class="tool-badge">Lectura</span></h4>
+      <p>Búsqueda full-text en SQLite con FTS5 (algoritmo BM25, sin distinción de mayúsculas ni tildes). Devuelve rutas, relevancia y fragmentos de texto exactos (≤200 caracteres).</p>
+      <p><em>Prompt:</em> "Busca en Org qué notas tenemos sobre reportes de HubSpot para MSD."</p>
+    </div>
+
+    <div class="card-tool navy">
+      <h4><code>read_note</code> <span class="tool-badge">Lectura</span></h4>
+      <p>Lee el cuerpo de una nota específica. Acepta el parámetro <code>section</code> para devolver únicamente un bloque de encabezado <code>##</code>, evitando lecturas completas innecesarias.</p>
+      <p><em>Prompt:</em> "Lee la sección de 'Contexto de cuenta' de la nota canónico/clientes/msd.md."</p>
+    </div>
+
+    <div class="card-tool navy">
+      <h4><code>write_session_note</code> <span class="tool-badge">Escritura</span></h4>
+      <p>Genera la nota de cierre de sesión con formato estricto en <code>aportes/&lt;persona&gt;/YYYY-MM-DD-HHmm-&lt;slug&gt;.md</code>. Máximo 1.500 caracteres.</p>
+      <p><em>Prompt:</em> "Escribe un cierre de sesión sobre la propuesta de pauta Q4 de MSD que terminamos hoy."</p>
+    </div>
+
+    <div class="card-tool navy">
+      <h4><code>upsert_context_note</code> <span class="tool-badge">Escritura</span></h4>
+      <p>Crea o actualiza una nota de contexto validando su frontmatter con Zod. Rechaza notas de más de 500 palabras y prohíbe escribir en <code>canónico/</code>.</p>
+    </div>
+
+    <div class="card-tool navy">
+      <h4><code>list_notes</code> <span class="tool-badge">Metadatos</span></h4>
+      <p>Lista rutas y títulos de notas filtradas por carpeta, autor o tipo sin devolver nunca el cuerpo del texto (límite máximo 50 notas).</p>
+    </div>
+
+    <!-- SECCIÓN 06 -->
+    <div class="section-header">
+      <div class="section-badge-row">
+        <div class="section-number">6</div>
+        <span class="section-category">CURADURÍA Y OPERACIÓN</span>
+      </div>
+      <h2 class="section-title">El Ciclo Semanal del Curador</h2>
+      <div class="section-subtitle-italic">Cómo mantener el conocimiento limpio, vivo y confiable sin esfuerzo manual excesivo.</div>
+    </div>
+
+    <p>
+      El valor del sistema se basa en un ciclo virtuoso semanal de 1 a 2 horas liderado por el <strong>Curador del Baúl</strong>:
+    </p>
+
+    <table class="table-editorial">
+      <thead>
+        <tr>
+          <th>Frecuencia</th>
+          <th>Acción del Curador</th>
+          <th>Impacto en el Equipo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Semanal</strong></td>
+          <td>Revisar notas nuevas en <code>aportes/</code>. Mover lo relevante a <code>canónico/</code> y asignar <code>estado: validado</code>.</td>
+          <td>Las notas oficiales se vuelven la fuente de verdad prioritaria para Claude Code en todo el equipo.</td>
+        </tr>
+        <tr>
+          <td><strong>Mensual</strong></td>
+          <td>Ejecutar <code>npm run report</code>. Identificar búsquedas con 0 resultados.</td>
+          <td>Detecta lagunas de conocimiento ("preguntas que Claude no supo responder porque nadie las ha documentado").</td>
+        </tr>
+        <tr>
+          <td><strong>Trimestral</strong></td>
+          <td>Podar notas a <code>archivo/</code> que lleven 90 días sin consultas en el log.</td>
+          <td>El índice se mantiene ligero, rápido y sin ruido obsoleto.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- SECCIÓN 07 -->
+    <div class="section-header">
+      <div class="section-badge-row">
+        <div class="section-number orange">7</div>
+        <span class="section-category">INFRAESTRUCTURA CLOUD</span>
+      </div>
+      <h2 class="section-title">Despliegue en VPS con Coolify</h2>
+      <div class="section-subtitle-italic">Puesta en producción del Relay EVC en un servidor privado con certificados TLS automáticos.</div>
+    </div>
+
+    <p>
+      Coolify es la plataforma auto-hospedada recomendada para Latinovation. Administra Docker, dominios y certificados SSL automáticamente mediante Traefik.
+    </p>
+
+    <h3>Requisitos del Servidor</h3>
+    <ul style="margin-left: 20px; margin-bottom: 20px;">
+      <li>VPS con Ubuntu 22.04 o superior (mínimo 2 vCPU y 4 GB de RAM).</li>
+      <li>Coolify v4 instalado y corriendo.</li>
+      <li>Dos registros DNS tipo A apuntando a la IP del VPS:
+        <br>• <code>cp.org.latinovation.com</code> (Control Plane)
+        <br>• <code>org.latinovation.com</code> (Relay WebSocket)
+      </li>
+    </ul>
+
+    <h3>Pasos en el Panel de Coolify</h3>
+
+    <div class="step-row">
+      <div class="step-badge">1</div>
+      <div class="step-text">
+        <strong>Crear Nuevo Recurso:</strong> En tu proyecto de Coolify, haz clic en <em>+ New Resource</em> → <em>Docker Compose</em>.
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-badge">2</div>
+      <div class="step-text">
+        <strong>Copiar el Compose de Coolify:</strong> Pega el contenido de <code>infra/docker-compose.coolify.yml</code> (incluido en este repositorio, sin el contenedor de Caddy ya que Coolify gestiona el proxy inverso y SSL).
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-badge">3</div>
+      <div class="step-text">
+        <strong>Configurar Variables de Entorno:</strong>
+        En la pestaña <em>Environment Variables</em> de Coolify, rellena los valores secretos generados por <code>./infra/setup.sh prod org.latinovation.com ops@latinovation.com</code> (o copia <code>infra/.env.coolify.example</code>).
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-badge">4</div>
+      <div class="step-text">
+        <strong>Asignar Dominios en Coolify:</strong>
+        <br>• Para el servicio <code>control-plane</code>: <code>https://cp.org.latinovation.com</code>
+        <br>• Para el servicio <code>relay-server</code>: <code>https://org.latinovation.com</code> (con soporte WebSocket activado).
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-badge">5</div>
+      <div class="step-text">
+        <strong>Desplegar:</strong> Haz clic en <strong>Deploy</strong>. Coolify levantará Postgres, MinIO, Control Plane y Relay Server con healthchecks automáticos.
+      </div>
+    </div>
+
+    <!-- SECCIÓN 08 -->
+    <div class="section-header">
+      <div class="section-badge-row">
+        <div class="section-number">8</div>
+        <span class="section-category">RESILIENCIA Y SOPORTE</span>
+      </div>
+      <h2 class="section-title">Backups y Solución de Problemas</h2>
+      <div class="section-subtitle-italic">Operación continua y resolución rápida de incidencias cotidianas.</div>
+    </div>
+
+    <h3>Estrategia de Copias de Seguridad</h3>
+    <p>El repositorio incluye scripts listos para programar en el cron del VPS a las 02:30 AM:</p>
+
+    <div class="terminal-block">
+<pre><span class="comment"># En el crontab del host (/etc/crontab o crontab -e):</span>
+30 2 * * * /opt/latinovation-org-vault/infra/backup.sh >> /var/log/org-vault-backup.log 2>&1
+
+<span class="comment"># Para restaurar en caso de desastre (probado y verificado):</span>
+./infra/restore.sh backups/pg_2026-09-03_2201.sql.gz backups/data_2026-09-03_2201.tar.gz</pre>
+    </div>
+
+    <table class="table-editorial">
+      <thead>
+        <tr>
+          <th>Síntoma</th>
+          <th>Causa Frecuente</th>
+          <th>Solución</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>(relay conflict ...)</code> en el nombre de archivo</td>
+          <td>Dos personas crearon una nota con el nombre por defecto <code>Nota nueva.md</code> al mismo segundo.</td>
+          <td>Normal y esperado. Renombrar cada nota con su título descriptivo dentro de su subcarpeta <code>aportes/&lt;persona&gt;/</code>.</td>
+        </tr>
+        <tr>
+          <td><code>org-vault</code> aparece como <em>Failed</em> en Claude</td>
+          <td>La ruta al baúl en <code>~/.org-vault/config.json</code> cambió o no existe.</td>
+          <td>Ejecutar <code>node mcp-org-vault/dist/index.js --check</code> para diagnosticar el mensaje exacto.</td>
+        </tr>
+        <tr>
+          <td>La nota no aparece en la otra computadora</td>
+          <td>El plugin Team Relay no está conectado o el share no fue aceptado.</td>
+          <td>Revisar el icono lateral de Team Relay en Obsidian y confirmar estado verde.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-warning">
+      <span class="callout-title">SEGURIDAD Y PRIVACIDAD</span>
+      <strong>Nunca subas contraseñas, tokens de API ni credenciales bancarias a <code>Org/</code>.</strong> El baúl se sincroniza con los miembros del equipo y viaja al contexto de Claude Code. Para credenciales se usa el gestor de contraseñas de la agencia.
+    </div>
+
+  </div>
+
+  <!-- ==================== PIE DE PÁGINA ==================== -->
+  <footer class="page-footer">
+    <span>Latinovation · Guía Oficial: Claude Code + Obsidian Org Vault</span>
+    <span>Edición Verificada · 2026</span>
+  </footer>
+
+</div>
+
+</body>
+</html>
