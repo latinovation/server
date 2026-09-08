@@ -46,7 +46,7 @@ case "$MODE" in
     RELAY_PUBLIC_URL="wss://$DOMAIN_BASE"; RELAY_AUDIENCE="https://$DOMAIN_BASE"; CP_URL="https://cp.$DOMAIN_BASE"
     CORS="https://cp.$DOMAIN_BASE"
     ;;
-  *) sed -n '2,7p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+  *) sed -n '2,7p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac
 
 if [ -f .env ] && [ "$FORCE" = 0 ]; then
@@ -71,6 +71,7 @@ COMPOSE_FILE=$COMPOSE
 
 DOMAIN_BASE=$DOMAIN_BASE
 RELAY_DOMAIN=$RELAY_DOMAIN
+CP_DOMAIN=cp.$DOMAIN_BASE
 ACME_EMAIL=$ACME_EMAIL
 
 CP_VERSION=latest

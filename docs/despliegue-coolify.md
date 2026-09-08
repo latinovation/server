@@ -16,11 +16,18 @@ Esta guía explica paso a paso cómo desplegar el **Relay Server EVC** (backend 
 
 ## 2. Generar Secretos y Claves Criptográficas
 
-En tu computadora local (o en la terminal del VPS), ejecuta el script generador en modo producción:
+En tu computadora local (Windows PowerShell o Linux/Mac):
+
+```powershell
+# En Windows (PowerShell):
+cd infra
+.\setup.ps1 prod org.latinovation.com admin@latinovation.com --force
+```
 
 ```bash
+# En Linux, macOS o Git Bash:
 cd infra
-./setup.sh prod org.latinovation.com ops@latinovation.com
+./setup.sh prod org.latinovation.com admin@latinovation.com --force
 ```
 
 Esto generará automáticamente:
@@ -28,8 +35,7 @@ Esto generará automáticamente:
 - El secreto JWT.
 - El par de claves asimétricas **Ed25519** (`RELAY_PRIVATE_KEY` y `RELAY_PUBLIC_KEY`).
 - El archivo `infra/relay/relay.toml` con la clave pública y el endpoint de MinIO ya rellenados.
-
-*(Revisa el archivo generado `infra/.env` para copiar los valores a Coolify en el siguiente paso).*
+- El archivo `infra/.env` con todas las variables requeridas para Coolify.
 
 ---
 
@@ -44,17 +50,17 @@ Hay dos formas sencillas de crearlo en Coolify:
 4. En **Build Pack**, selecciona **Docker Compose**.
 5. En **Docker Compose Location**, escribe:  
    `infra/docker-compose.coolify.yml`
-6. En la pestaña **Environment Variables**, pega las variables generadas (puedes guiarte con `infra/.env.coolify.example`).
-7. Haz clic en **Deploy**.
+6. En la pestaña **Environment Variables**, pega las variables generadas en `infra/.env` (en Developer View / Bulk Edit).
+7. Haz clic en **Deploy**.  
+   *(El archivo `infra/relay/relay.toml` se monta automáticamente desde el repositorio Git, sin necesidad de tocar la pestaña Storages).*
 
 ---
 
 ### Opción B: Mediante Docker Compose Directo
 1. En Coolify, haz clic en **+ New Resource** → **Docker Compose**.
-2. Pega el contenido de [`infra/docker-compose.coolify.yml`](file:///Users/macbookpro/BRAYAN/projects/LATINOVATION/ObsidianSinc/infra/docker-compose.coolify.yml).
+2. Pega el contenido de `infra/docker-compose.coolify.yml`.
 3. En la pestaña **Environment Variables**, añade las variables de `infra/.env`.
-4. Asegúrate de que el archivo `infra/relay/relay.toml` esté creado en el host o monta un volumen con su contenido.
-5. Haz clic en **Deploy**.
+4. Haz clic en **Deploy**.
 
 ---
 
@@ -96,7 +102,7 @@ Accede al panel de administración para gestionar usuarios en:
 
 ## 6. Conectar los Obsidian del Equipo al VPS
 
-Cada miembro del equipo solo debe seguir los pasos de [docs/onboarding.md](file:///Users/macbookpro/BRAYAN/projects/LATINOVATION/ObsidianSinc/docs/onboarding.md) usando la URL de producción:
+Cada miembro del equipo solo debe seguir los pasos de [docs/onboarding.md](onboarding.md) usando la URL de producción:
 
 1. En Obsidian → Ajustes → **Team Relay** → **Add Server**:
    - **Control Plane URL:** `https://cp.org.latinovation.com`
