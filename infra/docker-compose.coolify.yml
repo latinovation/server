@@ -7,8 +7,9 @@ services:
     image: postgres:16
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-relay}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-8712e807c05feeb82f2fa2064351dbf2}
       POSTGRES_DB: ${POSTGRES_DB:-relay}
+      POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - postgres-data-v2:/var/lib/postgresql/data
     restart: unless-stopped
@@ -51,7 +52,7 @@ services:
   control-plane-migrate:
     image: ghcr.io/entire-vc/evc-team-relay/control-plane:${CP_VERSION:-latest}
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://relay:8712e807c05feeb82f2fa2064351dbf2@postgres:5432/relay}
     depends_on:
       postgres:
         condition: service_healthy
@@ -61,7 +62,7 @@ services:
   control-plane:
     image: ghcr.io/entire-vc/evc-team-relay/control-plane:${CP_VERSION:-latest}
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://relay:8712e807c05feeb82f2fa2064351dbf2@postgres:5432/relay}
       JWT_SECRET: ${JWT_SECRET}
       BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL}
       BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD}
