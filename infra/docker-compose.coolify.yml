@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-relay}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data-v2:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-relay} -d ${POSTGRES_DB:-relay}"]
@@ -26,7 +26,7 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-relay}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
-      - minio-data:/data
+      - minio-data-v2:/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
@@ -145,8 +145,8 @@ services:
       - coolify
 
 volumes:
-  postgres-data:
-  minio-data:
+  postgres-data-v2:
+  minio-data-v2:
   uploads-data:
   relay-data:
 
